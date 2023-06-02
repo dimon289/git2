@@ -6,16 +6,27 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            var subKeyNames = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+            string subKeyName = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+            string appName = "Epic Games";
+            string appPath = "\"C:\\Games\\EpicGames\\Epic Games\\Launcher\\Portal\\Binaries\\Win32\\EpicGamesLauncher.exe\"";
 
-            
-            string[] valueNames = subKeyNames.GetValueNames();
-
-            foreach (var item in valueNames)
+            using (RegistryKey runKey = Registry.CurrentUser.OpenSubKey(subKeyName, true))
             {
-                Console.WriteLine(item);
-                string value = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", item, null);
-                Console.WriteLine(value);
+                if (runKey == null)
+                {
+                    Console.WriteLine($"Registry key '{subKeyName}' not found.");
+                    return;
+                }
+
+                try
+                {
+                    runKey.SetValue(appName, appPath);
+                    Console.WriteLine("Program added to the 'Run' registry key.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error writing to the registry: {ex.Message}");
+                }
             }
         }
     }
